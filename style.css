@@ -1,0 +1,81 @@
+.game {
+    width:100%;
+    height:100%;
+    background-color:black;
+    min-height: 650px;
+    background-image: url('http://gandzo.com/meow/asteroid/background2.jpg');
+    background-size: cover;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    overflow: hidden;
+    
+}
+
+body {
+  height: 100%;
+  min-height: 600px;
+  cursor:url('http://gandzo.com/meow/asteroid/cursor.png');
+}
+
+.player {
+    opacity:1;
+    height:50px;
+    width:60px;
+    background-image:url('http://www.clker.com/cliparts/W/X/y/k/W/Z/spaceship-1-th.png');
+    background-size: cover;
+    display:inline-block;
+    position:absolute;
+}
+.speed {
+    color:white;
+}
+.rotation {
+    color:white;
+}
+.y {
+    color:white;
+}
+.x {
+    color:white;
+}
+
+.laser {
+    background-image: url('http://i.imgur.com/tlNy74H.png');
+    background-size: cover;
+    position:absolute;
+    height:15px;
+    width:8px;
+}
+
+.asteroid {
+    background-size: cover;
+    position: absolute;
+    height: 60px;
+    width: 50px;
+}
+
+.a1 {
+    background-image:url('http://gandzo.com/meow/asteroid/asteroid1.png');
+}
+.a2 {
+    background-image:url('http://gandzo.com/meow/asteroid/asteroid2.png');
+}
+.a3 {
+    background-image:url('http://gandzo.com/meow/asteroid/asteroid3.png');
+}
+.explosion{
+    background-image: url('http://gandzo.com/meow/asteroid/explosionsprite.png');
+    position: absolute;
+    height:94px;
+    width:104px;
+}
+.playerexplosion{
+    position:absolute;
+    height:120px;
+    width:120px;
+    background-image: url('http://gandzo.com/meow/asteroid/playerexplosionsprite.png');
+}

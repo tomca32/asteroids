@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <link rel="stylesheet" href="style.css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <script src='js/main.js'></script>
+        <script src='http://gandzo.com/meow/asteroid/jquery.spritely-0.6.1.js'></script>
+        
+		<title>Asteroids!</title>
+	</head>
+	<body>
+     <div class="game" id="game">
+         <span class="speed">Thrust: 0</span><br>
+         <span class="rotation">Angle: 0</span><br>
+         <span class="x">X Speed: 0</span><br>
+         <span class="y">Y Speed: 0</span><br>
+     </div>
+     <audio id="laserSound" volume="0.3" src="http://gandzo.com/meow/asteroid/laserSound.wav" preload="auto"></audio>
+     <audio id="explosionSound" src="http://gandzo.com/meow/asteroid/explosionSound.wav" preload="auto"></audio>
+     <audio id="playerexplosion" preload="auto" src="http://gandzo.com/meow/asteroid/playerexplosion.mp3">
+        <source src="http://gandzo.com/meow/asteroid/playerexplosion.ogg">
+     </audio>
+     <audio autoplay loop id="music">
+         <source src="http://gandzo.com/meow/asteroid/ambient.mp3">
+         <source src="http://gandzo.com/meow/asteroid/ambient.ogg">
+     </audio>
+     <script type="text/javascript">
+     </script>
+	</body>
+</html>
