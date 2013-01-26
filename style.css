@@ -16,6 +16,8 @@
 }
 
 body {
+	margin: 0px;
+	overflow:hidden;
   height: 100%;
   min-height: 600px;
   cursor:url('http://gandzo.com/meow/asteroid/cursor.png');

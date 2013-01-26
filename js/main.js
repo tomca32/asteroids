@@ -1,19 +1,26 @@
+var wHeight = window.innerHeight;
+var wWidth = window.innerWidth;
+$(window).resize(function(){
+	wHeight = window.innerHeight;
+    wWidth = window.innerWidth;
+	
+	$('#game').css ({
+        width: wWidth+'px',
+        height: wHeight+'px'
+    });
+})
+
+
 $(document).ready(function() {
+	
+	$(window).resize();
     $('#laserSound').volume = 0;
     $('#game').focus();
-    var wHeight = $(window).height();
-    var wWidth = $(window).width();
     
-    $('iframe').css ({
-        width: wWidth+'px',
-        height: wHeight+'px'
-    });
-     $('#game').css ({
-        width: wWidth+'px',
-        height: wHeight+'px'
-    });
     var asteroids = [];
     var shots = [];
+    var shotsRemove =[];
+    var asteroidsRemove = [];
     var asteroidsDestroyed = 0;
     var asteroidCount = 0;
     var maxAsteroids = 20;
@@ -75,7 +82,7 @@ $(document).ready(function() {
     $(document).mousemove(function(evt){
         mX = evt.pageX;
         mY = evt.pageY;
-        updateAngle(player);
+        
     });
     
     function updateAngle(obj) {
@@ -133,7 +140,7 @@ $(document).ready(function() {
         window.setInterval(running, 50);
         window.setInterval(asteroidSpawn, 2000);
         function running(){
-            
+            updateAngle(player);
             if (brakesOn) braking();
             
             else {
@@ -146,45 +153,58 @@ $(document).ready(function() {
             $('.x').html('Speed X:'+Math.round(speedX*100)/100);
             $('.y').html('Speed Y:'+Math.round(speedY*100)/100);
             player.animate ({left: '+='+speedX, top:'+='+speedY},1);
-            for (var i = 0; i < asteroids.length; i++) {
-                var currentAsteroid = $('#'+asteroids[i]);
+            var len = asteroids.length;
+            while (len--){
+                var currentAsteroid = $('#'+asteroids[len]);
                 if (isCollide(currentAsteroid, player,'player') && playerAlive) {
-                    asteroids.splice(i--,1);
+                    asteroids.splice(len,1);
                     currentAsteroid.remove();
                     currentAsteroid = false;
                     playerDied();
                 }
-                if(currentAsteroid){ 
-                for (var j = 0; j < shots.length; j++) {
-                	var currentShot = $('#'+shots[j]);
+                if(currentAsteroid){
+                var lenShots = shots.length;
+                while(lenShots--) {
+                	var currentShot = $('#'+shots[lenShots]);
+                	if (screen(currentShot)=='removed') {
+                		currentShot.remove();
+                        shots.splice(lenShots,1);
+                	} else {
                     if (isCollide(currentAsteroid, currentShot, 'shot')) {
                         console.log('ode asteroid!');
                         explosion(currentAsteroid);
                         currentAsteroid = false;
-                        asteroids.splice(i,1);
+                        asteroids.splice(len,1);
                         asteroidCount--;
                         asteroidsDestroyed++;
                         currentShot.remove();
-                        shots.splice(j--,1);
+                        shots.splice(lenShots,1);
                         break;
                     }
+                   }
                 }}
                 if(!currentAsteroid) continue;
-                for (var j = 0; j < asteroids.length; j++) {
+                var len2 = asteroids.length;
+                while (len2--) {
                 	if(!currentAsteroid) continue;
-                	var drugiAsteroid = $('#'+asteroids[j]);
+                	var drugiAsteroid = $('#'+asteroids[len2]);
+                	if(drugiAsteroid == [] || drugiAsteroid ==undefined) break;
                     if (!(currentAsteroid.attr('id') === drugiAsteroid.attr('id'))){
                     if (isCollide(currentAsteroid, drugiAsteroid)) {
                         console.log('ode asteroid!');
                         explosion(currentAsteroid);
                         explosion(drugiAsteroid);
                         asteroidCount-=2;
-                        asteroidsDestroyed++;
-                        asteroids.splice[i--,1];
-                        asteroids.splice[j--,1];
-                        i--;
-                        j--;
+                        if (len>len2){
+                        	asteroids.splice(len,1);
+                        	asteroids.splice(len2,1);
+                        } else {
+                        	asteroids.splice(len2,1);
+                        	asteroids.splice(len,1);
+                        }
                         currentAsteroid = false;
+                        len--;
+                        len2--;
                         break;
                     }
                     }
@@ -206,9 +226,6 @@ $(document).ready(function() {
                 screen(currentAsteroid);
             }
             screen(player);
-            $('.laser').each(function(){
-                screen($(this));
-            });
             function braking() {
                 brakingPower = 0.4;
                 if (speed===0){
@@ -265,10 +282,10 @@ $(document).ready(function() {
                 item.css({top: gHeight+10+"px"});
             }
         }
-        if (removed)shots.splice(item.data('ind'),1);  //Removing shot from shots array
+        return removed;
+        //if (removed)shots.splice(item.data('ind'),1);  //Removing shot from shots array
     }
     function laser (){
-        updateAngle (player);
         var topSpeed = 5;
         var speedX= Math.cos(rads)*topSpeed;
         var speedY= Math.sin(rads)*topSpeed;
@@ -280,12 +297,13 @@ $(document).ready(function() {
         stilovi += '-ms-transform:rotate('+degree+'deg);';
         play_multi_sound('laserSound');
         var randomId = "x" + randomString(8);
+        var ind = shots.length;
         shots.push(randomId);
-        var ind = shots.length
+        
         $('#game').append('<div id="'+randomId+'" class="laser shot" style="'+stilovi+'" data-speedX="'+speedX+'" data-speedY="'+speedY+'" data-ind="'+ind+'"></div>');
         $('#'+randomId).animate ({left: '+='+speedX*300, top:'+='+speedY*300},3000,'linear', function(){
-            this.remove();
-            shots.splice(ind,1);
+            //shots.splice(ind,1);
+            //$(this).remove();
         });
     
     }
