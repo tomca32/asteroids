@@ -87,6 +87,7 @@ $(window).load(function() {
         mX = evt.pageX;
         mY = evt.pageY;
         
+        $('#cursor').css({top: mY, left: mX});
     });
     
     function updateAngle(obj) {

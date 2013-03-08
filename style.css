@@ -12,7 +12,7 @@
     -o-user-select: none;
     user-select: none;
     overflow: hidden;
-    
+    cursor:none; /*url('img/crosshair.png');
 }
 
 body {
@@ -93,4 +93,11 @@ body {
 }
 #github:hover {
 	background-image:url('img/githubOver.png');
+}
+
+#cursor {
+	background-image:url('./img/crosshair.png');
+	height: 50px;
+	width: 50px;
+	position: absolute;
 }
