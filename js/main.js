@@ -39,6 +39,8 @@ $(window).load(function() {
     var center_x;
     var center_y;
     var brakesOn = true;
+    var cursorHeight = $('#cursor').height()/2;
+    var cursorWidth = $('#cursor').width()/2;
     
     var thrustHUD = $('#thrust');
 	// your code here
@@ -87,7 +89,7 @@ $(window).load(function() {
         mX = evt.pageX;
         mY = evt.pageY;
         
-        $('#cursor').css({top: mY, left: mX});
+        $('#cursor').css({top: mY - cursorHeight, left: mX - cursorWidth});
     });
     
     function updateAngle(obj) {
