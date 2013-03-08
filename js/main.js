@@ -11,19 +11,21 @@ $(window).resize(function(){
 })
 
 
-$(document).ready(function() {
+$(window).load(function() {
 	
 	$(window).resize();
     $('#laserSound').volume = 0;
     $('#game').focus();
     
+    var FPS = 18;
+    var spawnTime = 2000; // miliseconds between asteroid spawns
+    var maxAsteroids = 20; //maximum number of asteroids at one time
     var asteroids = [];
     var shots = [];
     var shotsRemove =[];
     var asteroidsRemove = [];
     var asteroidsDestroyed = 0;
     var asteroidCount = 0;
-    var maxAsteroids = 20;
     var topSpeed = 10;
     var player;
     var playerAlive = false;
@@ -37,6 +39,8 @@ $(document).ready(function() {
     var center_x;
     var center_y;
     var brakesOn = true;
+    
+    var thrustHUD = $('#thrust');
 	// your code here
     function limit(val, lim,direction){
         switch (direction){
@@ -91,7 +95,7 @@ $(document).ready(function() {
         center_y = (offset.top) + (obj.height()/2);
         var mouse_x = mX; var mouse_y = mY;
         var radians = Math.atan2(mouse_x - center_x, mouse_y - center_y);
-        degree = (radians * (180 / Math.PI) * -1) + 180; 
+        degree = Math.floor((radians * (180 / Math.PI) * -1) + 180); 
         obj.css('-moz-transform', 'rotate('+degree+'deg)');
         obj.css('-webkit-transform', 'rotate('+degree+'deg)');
         obj.css('-o-transform', 'rotate('+degree+'deg)');
@@ -99,8 +103,8 @@ $(document).ready(function() {
         $('.rotation').html('Angle: '+Math.round(degree));
         rads=(degree-90) *(Math.PI/180);
     }
-    function updateSpeed() {
-        $('.speed').html("Thrust: "+speed);
+    function updateThrust() {
+        thrustHUD.html("Thrust: "+speed);
     }
     $(document).keydown(function(e){
         var code=e.which;
@@ -129,16 +133,14 @@ $(document).ready(function() {
             else
                 speed = 0;
         }
-        updateSpeed();
+        updateThrust();
     });
     
     function run(){
         var speedX=0;
         var speedY=0;
-        updateSpeed();
-        updateAngle(player);
-        window.setInterval(running, 50);
-        window.setInterval(asteroidSpawn, 2000);
+        window.setInterval(running, 1000/FPS);
+        window.setInterval(asteroidSpawn, spawnTime);
         function running(){
             updateAngle(player);
             if (brakesOn) braking();
@@ -152,7 +154,7 @@ $(document).ready(function() {
             
             $('.x').html('Speed X:'+Math.round(speedX*100)/100);
             $('.y').html('Speed Y:'+Math.round(speedY*100)/100);
-            player.animate ({left: '+='+speedX, top:'+='+speedY},1);
+            player.css ({left: '+='+speedX+'px', top:'+='+speedY+'px'});
             var len = asteroids.length;
             while (len--){
                 var currentAsteroid = $('#'+asteroids[len]);
@@ -208,7 +210,7 @@ $(document).ready(function() {
                         break;
                     }
                     }
-                }
+                } 
                 
                //console.log ($(this).attr('data-speedX'));
                if(!currentAsteroid) continue;
@@ -224,6 +226,13 @@ $(document).ready(function() {
                 currentAsteroid.css('-o-transform', 'rotate('+currentAsteroidRot+'deg)');
                 currentAsteroid.css('-ms-transform', 'rotate('+currentAsteroidRot+'deg)');
                 screen(currentAsteroid);
+                if (shotsRemove.length >0){
+                	console.log("Before removal,count: " +shotsRemove.length);
+                	var id = [shotsRemove.shift()];
+                	console.log("Removing shot ID:" + id + ", should be the same as: " + shots.shift());
+                	$('#'+id).remove();
+                }
+                
             }
             screen(player);
             function braking() {
@@ -295,13 +304,14 @@ $(document).ready(function() {
         stilovi += '-webkit-transform:rotate('+degree+'deg);';
         stilovi += '-o-transform:rotate('+degree+'deg);';
         stilovi += '-ms-transform:rotate('+degree+'deg);';
-        play_multi_sound('laserSound');
+        sounds.laser.play();
         var randomId = "x" + randomString(8);
         var ind = shots.length;
         shots.push(randomId);
         
         $('#game').append('<div id="'+randomId+'" class="laser shot" style="'+stilovi+'" data-speedX="'+speedX+'" data-speedY="'+speedY+'" data-ind="'+ind+'"></div>');
         $('#'+randomId).animate ({left: '+='+speedX*300, top:'+='+speedY*300},3000,'linear', function(){
+        	shotsRemove.push(randomId);
             //shots.splice(ind,1);
             //$(this).remove();
         });
@@ -312,13 +322,26 @@ $(document).ready(function() {
             return;
         if (asteroidCount >= maxAsteroids)
             return;
-       
-        var randomPositions= [Math.floor(Math.random()*wWidth + 1),Math.floor(Math.random()*wHeight + 1)];
-        var combinations= [0, -20, +20];
-        var tempPozicija = Math.floor(Math.random()*3);
-        var asteroidX = randomPositions[0]+ combinations[tempPozicija];
-        combinations = combinations.splice(tempPozicija);
-        var asteroidY = randomPositions[1]+ combinations[Math.floor(Math.random()*2)];
+        var pozicija = Math.floor(Math.random()*3);
+        console.log (pozicija);
+        switch (pozicija){
+        	case 0:
+        		var asteroidX = Math.floor(Math.random()*wWidth + 1);
+        		var asteroidY = -10;
+        		break;
+        	case 1:
+        		var asteroidX = wWidth + 11;
+        		var asteroidY = Math.floor(Math.random()*wHeight + 1);
+        		break;
+        	case 2:
+        		var asteroidX = Math.floor(Math.random()*wWidth + 1);
+        		var asteroidY = wHeight+11;
+        		break;
+        	case 3:
+        		var asteroidX = -10;
+        		var asteroidY = Math.floor(Math.random()*wHeight + 1);
+        		break;
+        }
         spawnAsteroid (asteroidX, asteroidY);
         //alert(asteroidY);
         function spawnAsteroid (astX,astY){
@@ -326,7 +349,7 @@ $(document).ready(function() {
             var astAngle = (Math.random()*(2*Math.PI));
             var astSpeedX = (Math.random()*(17)-8);
             var astSpeedY = (Math.random()*(17)-8);
-            var astRot = (Math.random()*(33)-16);
+            var astRot = Math.floor((Math.random()*(33)-16));
             $('#game').append('<div class="asteroid a'+Math.floor(Math.random()*3+1)+'" id="'+astID+'" data-currentrot="0" data-rot="'+astRot+'" data-speedX="'+astSpeedX+'" data-speedY="'+astSpeedY+'" style="left:'+astX+'px; top:'+astY+'px;"></div>');
             asteroidCount++;
             asteroids.push(astID);
@@ -371,14 +394,14 @@ function explosion(exploded){
     var expY = exploded.offset().top;
     var expName = randomString(5);
     if (exploded == player){
-        play_multi_sound('playerexplosion');
+        sounds.playerExplosion.play();
         $('#game').append('<div class="playerexplosion" id="'+expName+'" style="top:'+expY+'px; left:'+expX+'px;"></div>');
         $('#'+expName).sprite({fps: 18, no_of_frames: 29, on_last_frame: function(obj) {obj.spStop();}}).active();
         $('#'+expName).animate({opacity:0},2500,function(){
             $('#'+expName).remove();
         });
     } else{
-        play_multi_sound('explosionSound');
+        sounds.explosion.play();
         $('#game').append('<div class="explosion" id="'+expName+'" style="top:'+expY+'px; left:'+expX+'px;"></div>');
         $('#'+expName).sprite({fps: 20, no_of_frames: 14}).active();
         $('#'+expName).animate({opacity:0},800,function(){
@@ -402,25 +425,4 @@ function playerDied() {
 }
 
 });
-
-var channel_max = 10;    									// number of channels
-	audiochannels = new Array();
-	for (a=0;a<channel_max;a++) {									// prepare the channels
-		audiochannels[a] = new Array();
-		audiochannels[a]['channel'] = new Audio();						// create a new audio object
-		audiochannels[a]['finished'] = -1;							// expected end time for this channel
-	}
-	function play_multi_sound(s) {
-		for (a=0;a<audiochannels.length;a++) {
-			thistime = new Date();
-			if (audiochannels[a]['finished'] < thistime.getTime()) {			// is this channel finished?
-				audiochannels[a]['finished'] = thistime.getTime() + document.getElementById(s).duration*1000;
-				audiochannels[a]['channel'].src = document.getElementById(s).src;
-				audiochannels[a]['channel'].load();
-                audiochannels[a]['channel'].volume=0.2;
-				audiochannels[a]['channel'].play();
-				break;
-			}
-		}
-	}
 	
